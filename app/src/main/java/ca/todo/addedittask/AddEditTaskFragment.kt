@@ -25,7 +25,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ca.todo.EventObserver
 import ca.todo.R
+import ca.todo.TodoApplication
 import ca.todo.databinding.AddtaskFragBinding
+import ca.todo.taskdetail.TaskDetailViewModelFactory
 import ca.todo.tasks.ADD_EDIT_RESULT_OK
 import ca.todo.util.setupRefreshLayout
 import ca.todo.util.setupSnackbar
@@ -41,7 +43,9 @@ class AddEditTaskFragment : Fragment() {
 
     private val args: AddEditTaskFragmentArgs by navArgs()
 
-    private val viewModel by viewModels<AddEditTaskViewModel>()
+    private val viewModel by viewModels<AddEditTaskViewModel>() {
+        AddEditTaskViewModelFactory((requireContext().applicationContext as TodoApplication).taskRepository)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

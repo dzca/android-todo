@@ -26,6 +26,7 @@ import ca.todo.data.Result.Success
 import ca.todo.data.Result
 import ca.todo.data.Result.Error
 import ca.todo.data.source.TasksRepository
+import ca.todo.tasks.TasksViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -114,4 +115,12 @@ class TaskDetailViewModel(private val tasksRepository: TasksRepository) : ViewMo
     private fun showSnackbarMessage(@StringRes message: Int) {
         _snackbarText.value = Event(message)
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+class TaskDetailViewModelFactory (
+    private val tasksRepository: TasksRepository
+) : ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>) =
+        (TaskDetailViewModel(tasksRepository) as T)
 }

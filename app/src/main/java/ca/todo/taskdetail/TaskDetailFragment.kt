@@ -28,8 +28,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ca.todo.EventObserver
 import ca.todo.R
+import ca.todo.TodoApplication
 import ca.todo.databinding.TaskdetailFragBinding
 import ca.todo.tasks.DELETE_RESULT_OK
+import ca.todo.tasks.TasksViewModelFactory
 import ca.todo.util.setupRefreshLayout
 import ca.todo.util.setupSnackbar
 
@@ -43,7 +45,9 @@ class TaskDetailFragment : Fragment() {
 
     private val args: TaskDetailFragmentArgs by navArgs()
 
-    private val viewModel by viewModels<TaskDetailViewModel>()
+    private val viewModel by viewModels<TaskDetailViewModel>() {
+        TaskDetailViewModelFactory((requireContext().applicationContext as TodoApplication).taskRepository)
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

@@ -26,6 +26,7 @@ import ca.todo.data.Result.Success
 import ca.todo.data.Result
 import ca.todo.data.Result.Error
 import ca.todo.data.source.TasksRepository
+import ca.todo.statistics.StatisticsViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -135,4 +136,12 @@ class AddEditTaskViewModel(private val tasksRepository: TasksRepository) : ViewM
             _taskUpdatedEvent.value = Event(Unit)
         }
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+class AddEditTaskViewModelFactory (
+    private val tasksRepository: TasksRepository
+) : ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>) =
+        (AddEditTaskViewModel(tasksRepository) as T)
 }

@@ -24,6 +24,7 @@ import ca.todo.data.Task
 import ca.todo.data.Result
 import ca.todo.data.source.DefaultTasksRepository
 import ca.todo.data.source.TasksRepository
+import ca.todo.taskdetail.TaskDetailViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -55,4 +56,12 @@ class StatisticsViewModel(private val tasksRepository: TasksRepository) : ViewMo
                 _dataLoading.value = false
             }
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+class StatisticsViewModelFactory (
+    private val tasksRepository: TasksRepository
+) : ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>) =
+        (StatisticsViewModel(tasksRepository) as T)
 }
