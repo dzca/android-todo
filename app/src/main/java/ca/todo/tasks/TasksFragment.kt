@@ -29,6 +29,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ca.todo.EventObserver
 import ca.todo.R
+import ca.todo.TodoApplication
 import ca.todo.databinding.TasksFragBinding
 import ca.todo.util.setupRefreshLayout
 import ca.todo.util.setupSnackbar
@@ -48,7 +49,9 @@ import timber.log.Timber
  */
 class TasksFragment : Fragment() {
 
-    private val viewModel by viewModels<TasksViewModel>()
+    private val viewModel by viewModels<TasksViewModel>() {
+        TasksViewModelFactory((requireContext().applicationContext as TodoApplication).taskRepository)
+    }
 
     private val args: TasksFragmentArgs by navArgs()
 
