@@ -17,6 +17,9 @@
 package ca.todo.tasks
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import ca.todo.Event
+import ca.todo.MainCoroutineRule
+import ca.todo.R
 import ca.todo.data.Task
 import ca.todo.data.source.FakeTestRepository
 import ca.todo.getOrAwaitValue
@@ -38,6 +41,11 @@ class TasksViewModelTest {
     // Executes each task synchronously using Architecture Components.
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
+    // Set the main coroutines dispatcher for unit testing.
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setupViewModel() {
@@ -72,4 +80,37 @@ class TasksViewModelTest {
         assertThat(tasksViewModel.tasksAddViewVisible.getOrAwaitValue(), `is`(true))
     }
 
+    @Test
+    fun completeTask_dataAndSnackbarUpdated() {
+        // With a repository that has an active task
+        val task = Task("Title", "Description")
+        tasksRepository.addTasks(task)
+
+        // Complete task
+        tasksViewModel.completeTask(task, true)
+
+        // Verify the task is completed
+        assertThat(tasksRepository.tasksServiceData[task.id]?.isCompleted, `is`(true))
+
+        // The snackbar is updated
+        val snackbarText: Event<Int> =  tasksViewModel.snackbarText.getOrAwaitValue()
+        assertThat(snackbarText.getContentIfNotHandled(), `is`(R.string.task_marked_complete))
+    }
+
+    @Test
+    fun activateTask_dataAndSnackbarUpdated() {
+        // With a repository that has a completed task
+        val task = Task("Title", "Description", true)
+        tasksRepository.addTasks(task)
+
+        // Activate task
+        tasksViewModel.completeTask(task, false)
+
+        // Verify the task is active
+        assertThat(tasksRepository.tasksServiceData[task.id]?.isActive, `is`(true))
+
+        // The snackbar is updated
+        val snackbarText: Event<Int> =  tasksViewModel.snackbarText.getOrAwaitValue()
+        assertThat(snackbarText.getContentIfNotHandled(), `is`(R.string.task_marked_active))
+    }
 }

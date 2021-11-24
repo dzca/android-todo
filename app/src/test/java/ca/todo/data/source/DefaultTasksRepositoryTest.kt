@@ -23,6 +23,7 @@ import org.hamcrest.core.IsEqual
 import org.junit.Before
 import org.junit.Test
 import ca.todo.Event
+import ca.todo.MainCoroutineRule
 import ca.todo.R
 import ca.todo.data.Task
 import ca.todo.data.source.DefaultTasksRepository
@@ -30,6 +31,7 @@ import ca.todo.data.Result.Success
 import ca.todo.data.Result
 import ca.todo.data.Result.Error
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Rule
 
 /**
  * Unit tests for the implementation of the in-memory repository with cache.
@@ -49,6 +51,11 @@ class DefaultTasksRepositoryTest {
     // Class under test
     private lateinit var tasksRepository: DefaultTasksRepository
 
+    // Set the main coroutines dispatcher for unit testing.
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
     @Before
     fun createRepository() {
         tasksRemoteDataSource = FakeDataSource(remoteTasks.toMutableList())
@@ -58,12 +65,12 @@ class DefaultTasksRepositoryTest {
             // TODO Dispatchers.Unconfined should be replaced with Dispatchers.Main
             //  this requires understanding more about coroutines + testing
             //  so we will keep this as Unconfined for now.
-            tasksRemoteDataSource, tasksLocalDataSource, Dispatchers.Unconfined
+            tasksRemoteDataSource, tasksLocalDataSource, Dispatchers.Main
         )
     }
 
     @Test
-    fun getTasks_requestsAllTasksFromRemoteDataSource() = runBlockingTest {
+    fun getTasks_requestsAllTasksFromRemoteDataSource() = mainCoroutineRule.runBlockingTest {
         // When tasks are requested from the tasks repository
         val tasks = tasksRepository.getTasks(true) as Success
 
