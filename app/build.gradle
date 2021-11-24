@@ -16,6 +16,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField 'String', 'API_URL', (project.findProperty("BASE_URL") ?: "")
+//        buildConfigField 'String', 'API_URL', '"http://10.0.2.2/api/"'
+        buildConfigField 'String', 'API_KEY', '"123456"'
     }
     packagingOptions {
         exclude "**/attach_hotspot_windows.dll"
@@ -78,6 +81,12 @@ dependencies {
 
     // Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
+
+    // retrofit and okhttp
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
 
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 

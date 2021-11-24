@@ -19,13 +19,15 @@ package ca.todo
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.room.Room
-import ca.todo.data.source.DefaultTasksRepository
-import ca.todo.data.source.TasksDataSource
-import ca.todo.data.source.TasksRepository
+import ca.todo.data.source.*
 import ca.todo.data.source.local.TasksLocalDataSource
 import ca.todo.data.source.local.ToDoDatabase
 import ca.todo.data.source.remote.TasksRemoteDataSource
 import kotlinx.coroutines.runBlocking
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * A Service Locator for the [TasksRepository]. This is the prod version, with a
@@ -35,6 +37,7 @@ object ServiceLocator {
 
     private val lock = Any()
     private var database: ToDoDatabase? = null
+
     @Volatile
     var tasksRepository: TasksRepository? = null
         @VisibleForTesting set
@@ -46,10 +49,36 @@ object ServiceLocator {
     }
 
     private fun createTasksRepository(context: Context): TasksRepository {
-        val newRepo = DefaultTasksRepository(TasksRemoteDataSource, createTaskLocalDataSource(context))
+        val retrofit = retrofit?: createRetrofit()
+        val taskService: TaskService by lazy { retrofit.create(TaskService::class.java)}
+        val newRepo = RestfulTaskRepository(taskService)
+
+//        val newRepo = DefaultTasksRepository(TasksRemoteDataSource, createTaskLocalDataSource(context))
         tasksRepository = newRepo
         return newRepo
     }
+
+    private var retrofit: Retrofit? = null
+    private var httpClient: OkHttpClient? = null
+
+    private fun createHttpClient() : OkHttpClient{
+        return OkHttpClient().newBuilder().apply {
+            val logging = HttpLoggingInterceptor()
+            logging.level = HttpLoggingInterceptor.Level.BODY
+            addInterceptor(logging)
+        }.build()
+    }
+
+    private fun createRetrofit(): Retrofit {
+        val httpClient = httpClient?: createHttpClient()
+
+        return Retrofit.Builder()
+            .client(httpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(BuildConfig.API_URL)
+            .build()
+    }
+
 
     private fun createTaskLocalDataSource(context: Context): TasksDataSource {
         val database = database ?: createDataBase(context)
