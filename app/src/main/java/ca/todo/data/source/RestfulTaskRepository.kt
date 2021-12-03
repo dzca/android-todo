@@ -3,6 +3,7 @@ package ca.todo.data.source
 import androidx.lifecycle.LiveData
 import ca.todo.data.Result
 import ca.todo.data.Task
+import ca.todo.util.wrapEspressoIdlingResource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,6 +16,13 @@ class RestfulTaskRepository(private val taskService: TaskService,
         TODO("Not yet implemented")
     }
 
+    override fun observeTask(taskId: String): LiveData<Result<Task>> {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * query rest api
+     */
     override suspend fun getTasks(forceUpdate: Boolean): Result<List<Task>> = withContext(ioDispatcher) {
         return@withContext try {
             Result.Success(taskService.getTasks())
@@ -23,16 +31,19 @@ class RestfulTaskRepository(private val taskService: TaskService,
         }
     }
 
+    /**
+     * refresh local cache
+     */
     override suspend fun refreshTasks() {
-        TODO("Not yet implemented")
+
     }
 
-    override fun observeTask(taskId: String): LiveData<Result<Task>> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getTask(taskId: String, forceUpdate: Boolean): Result<Task> {
-        TODO("Not yet implemented")
+    override suspend fun getTask(taskId: String, forceUpdate: Boolean): Result<Task> = withContext(ioDispatcher) {
+        return@withContext try {
+            Result.Success(taskService.findTask(taskId))
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 
     override suspend fun refreshTask(taskId: String) {

@@ -25,13 +25,16 @@ import ca.todo.data.Task
  */
 interface TasksRepository {
 
+    /**
+     * query tasks and save it in live data
+     */
     fun observeTasks(): LiveData<Result<List<Task>>>
+
+    fun observeTask(taskId: String): LiveData<Result<Task>>
 
     suspend fun getTasks(forceUpdate: Boolean = false): Result<List<Task>>
 
     suspend fun refreshTasks()
-
-    fun observeTask(taskId: String): LiveData<Result<Task>>
 
     suspend fun getTask(taskId: String, forceUpdate: Boolean = false): Result<Task>
 
